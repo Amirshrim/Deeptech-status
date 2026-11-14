@@ -1,12 +1,16 @@
 @import "tailwindcss";
 
-/* ───────────────────────── Design tokens (RUEC CRM) ───────────────────────── */
+/* ───────────────────────── Design tokens ─────────────────────────
+   Layout/structure follows the RUEC CRM; colours follow the Deep-Tech Reichman
+   brand (deep-space background, violet primary, lavender accent). */
 :root {
-  --navy: #2f429c;
-  --navy-deep: #223a8e;
-  --navy-ink: #1c3080;
-  --sky: #4d63bb;
+  --navy: #5a3fd1; /* brand violet — primary buttons, selected states */
+  --navy-deep: #0d081f; /* deep-space background (roll-up / logo) */
+  --navy-ink: #3a2596; /* dark violet — hover, text on --blue-bg */
+  --sky: #8b7bff; /* focus ring */
   --magenta: #cc3366;
+  --lavender: #b89cf1; /* accent word on dark ("יזמות") */
+  --mist: #f0ebff; /* wordmark / text on dark */
   --paper: #f2f3f8;
   --paper-dim: #e3e6f2;
   --white: #fff;
@@ -20,7 +24,7 @@
   --warn-bg: #fdf4e3;
   --bad: #c23b3b;
   --bad-bg: #fdecec;
-  --blue-bg: #e9eefb;
+  --blue-bg: #f0ecff;
 
   /* Darker text variants so small badge text on the tinted backgrounds passes
      WCAG AA (4.5:1). The base tokens above are kept for borders and icons. */
@@ -42,6 +46,8 @@
   --color-navy-ink: var(--navy-ink);
   --color-sky: var(--sky);
   --color-magenta: var(--magenta);
+  --color-lavender: var(--lavender);
+  --color-mist: var(--mist);
   --color-paper: var(--paper);
   --color-paper-dim: var(--paper-dim);
   --color-ink: var(--ink);
@@ -139,8 +145,85 @@
   /* ── Entry screens (navy, full bleed) ── */
   .dt-entry {
     min-block-size: 100dvh;
-    background: var(--navy-deep);
+    background-color: var(--navy-deep);
+    /* faint dot grid, as on the roll-ups */
+    background-image: radial-gradient(rgb(240 235 255 / 0.08) 1px, transparent 1.4px);
+    background-size: 24px 24px;
     color: var(--white);
+  }
+  /* No isolation here on purpose: the logo's lighten blend must see the page
+     background and the galaxy, so its near-black backdrop disappears. */
+  .dt-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .dt-hero-galaxy {
+    position: absolute;
+    inset-inline: -16px;
+    inset-block: -24px 18%;
+    background: url("/brand/galaxy.jpg") center / cover no-repeat;
+    opacity: 0.5;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 75%);
+    pointer-events: none;
+  }
+  .dt-hero-logo {
+    position: relative; /* paints above the absolutely positioned galaxy */
+    inline-size: min(240px, 64vw);
+    block-size: auto;
+    mix-blend-mode: lighten; /* logo's near-black background melts into the page */
+  }
+  .dt-eyebrow {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    color: var(--lavender);
+  }
+  .dt-accent {
+    color: var(--lavender);
+  }
+  .dt-wordmark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--mist);
+    text-decoration: none;
+  }
+  .dt-wordmark img {
+    inline-size: 36px;
+    block-size: 36px;
+    mix-blend-mode: lighten;
+  }
+  .dt-wordmark-text {
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: 0.8rem;
+    line-height: 1.15;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .dt-partners {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .dt-partner {
+    padding: 6px 10px;
+    border: 1px dashed rgb(184 156 241 / 0.55);
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--mist);
   }
   .dt-container {
     inline-size: 100%;
@@ -181,6 +264,10 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
+  .dt-entry .dt-wordmark {
+    color: var(--mist);
+    text-decoration: none;
+  }
 
   /* ── Cards ── */
   .dt-card {
@@ -191,6 +278,19 @@
   }
   .dt-card a {
     color: var(--navy);
+  }
+  /* Brand gradient strip on top of entry-screen cards */
+  .dt-card-brand {
+    position: relative;
+    overflow: hidden;
+  }
+  .dt-card-brand::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    block-size: 4px;
+    background: linear-gradient(90deg, #7cc4ff, #8b6cff 50%, var(--lavender));
   }
 
   /* ── Form controls ── */

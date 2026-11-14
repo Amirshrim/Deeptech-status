@@ -152,7 +152,7 @@ export function MemberForm() {
   }
 
   return (
-    <form className="dt-card flex flex-col gap-5" onSubmit={onSubmit} noValidate aria-label="טופס העדפות תזונה">
+    <form className="dt-card dt-card-brand flex flex-col gap-5" onSubmit={onSubmit} noValidate aria-label="טופס העדפות תזונה">
       <p className="dt-hint m-0">
         שדות המסומנים ב-<span className="dt-req">*</span> הם חובה.
       </p>
@@ -407,7 +407,7 @@ function SuccessView({
   const updated = result.status === "updated";
 
   return (
-    <section className="dt-card flex flex-col gap-5" aria-labelledby="success-title">
+    <section className="dt-card dt-card-brand flex flex-col gap-5" aria-labelledby="success-title">
       <div className="flex flex-col items-center gap-2 text-center">
         <span className="grid size-14 place-items-center rounded-full bg-good-bg text-good text-3xl">
           <Icon name="check_circle" fill />

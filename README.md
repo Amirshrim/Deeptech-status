@@ -121,6 +121,17 @@ src/lib/                zod schemas, session, auth, rate limit, CSV, summary tex
 
 ## Design
 
-The design tokens match the RUEC CRM: navy `#223a8e` for entry screens, white cards with a 6px radius, flat UI with no shadows, and magenta only as an accent. The fonts are Assistant, Open Sans and IBM Plex Mono, with Material Symbols for icons. Layout uses logical CSS properties throughout, so RTL renders correctly. Badge text uses slightly darker shades of the good, warn and bad tokens so every text and background pair meets WCAG AA (4.5:1).
+The layout follows the RUEC CRM: white cards with a 6px radius, a flat UI with no shadows, Assistant, Open Sans and IBM Plex Mono for type, and Material Symbols for icons. The colours come from the Deep-Tech Reichman brand:
+- the deep-space background `#0d081f` with a faint dot grid;
+- violet `#5a3fd1` as the primary colour;
+- lavender `#b89cf1` for the accent word;
+- the galaxy art from the roll-up behind the logo.
 
-Replace `public/logo.svg` with the real Deep-Tech Reichman logo. It is displayed at 44×44 on navy backgrounds.
+Magenta stays a single accent, used only for allergies and required-field asterisks. Layout uses logical CSS properties throughout, so RTL renders correctly, and every text and background pair meets WCAG AA (4.5:1).
+
+Brand assets are in `public/brand/`:
+- `deeptech-logo.jpg` is the full logo.
+- `atom.png` is the atom mark used in the admin header.
+- `galaxy.jpg` is cropped from the roll-up design.
+
+The favicon is `src/app/icon.png`.

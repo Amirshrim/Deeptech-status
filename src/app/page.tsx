@@ -1,4 +1,4 @@
-import { Brand, Footer } from "@/components/Brand";
+import { BrandHero, Footer } from "@/components/Brand";
 import { MemberForm } from "@/components/MemberForm";
 
 // Read CLUB_CONTACT_EMAIL at request time (not baked in at build).
@@ -9,10 +9,13 @@ export default function HomePage() {
 
   return (
     <main className="dt-entry dt-on-navy">
-      <div className="dt-container pt-6 pb-2">
-        <Brand />
-        <header className="mt-8 mb-5 flex flex-col gap-2">
-          <h1 className="dt-h1">העדפות תזונה</h1>
+      <div className="dt-container pt-4 pb-2">
+        <BrandHero />
+        <header className="mt-4 mb-6 flex flex-col items-center gap-2 text-center">
+          <p className="dt-eyebrow m-0">מועדון הדיפ-טק של אוניברסיטת רייכמן</p>
+          <h1 className="dt-h1">
+            העדפות <span className="dt-accent">תזונה</span>
+          </h1>
           <p className="dt-lead m-0">
             ממלאים פעם אחת, ואנחנו דואגים שיהיה לכם מה לאכול באירועי המועדון. לוקח פחות מדקה.
           </p>

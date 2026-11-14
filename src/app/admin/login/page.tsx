@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Brand } from "@/components/Brand";
+import { BrandHero } from "@/components/Brand";
 import { getAdminSession } from "@/lib/auth";
 import { safeNextPath } from "@/lib/route-guard";
 import { LoginForm } from "./LoginForm";
@@ -23,10 +23,8 @@ export default async function LoginPage({
   return (
     <main className="dt-entry dt-on-navy flex flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-[400px] flex flex-col gap-6">
-        <div className="flex justify-center">
-          <Brand compact />
-        </div>
-        <div className="dt-card flex flex-col gap-5">
+        <BrandHero size="sm" />
+        <div className="dt-card dt-card-brand flex flex-col gap-5">
           <h1 className="text-2xl text-navy-deep text-center">
             <bdi dir="ltr">Deep-Tech Admin</bdi>
           </h1>

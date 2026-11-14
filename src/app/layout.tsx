@@ -25,13 +25,12 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Deep-Tech Reichman — העדפות תזונה",
   description: "טופס העדפות תזונה לחברי מועדון הדיפ-טק של אוניברסיטת רייכמן",
-  icons: { icon: "/logo.svg" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#223a8e",
+  themeColor: "#0d081f",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

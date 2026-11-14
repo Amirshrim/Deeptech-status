@@ -8,7 +8,7 @@ export function AdminHeader({ email, current }: { email: string; current: Sectio
   return (
     <header className="dt-topbar dt-on-navy dt-no-print">
       <div className="dt-topbar-inner">
-        <Brand compact />
+        <Brand />
         <span className="font-display font-extrabold tracking-[0.01em] text-white/90">
           <bdi dir="ltr">Admin</bdi>
         </span>
