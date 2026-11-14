@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandHero, Footer } from "@/components/Brand";
 import { DietSavedBadge } from "@/components/DietSavedBadge";
+import { FeedbackSentBadge } from "@/components/FeedbackSentBadge";
 import { Icon } from "@/components/Icon";
 import { getActiveEvent } from "@/lib/events";
 
@@ -44,6 +45,7 @@ export default async function MenuPage() {
               {event && (
                 <span className="dt-badge dt-badge-blue mt-1.5 self-start whitespace-normal">{event.title}</span>
               )}
+              {event && <FeedbackSentBadge eventId={event.id} />}
             </span>
             <Icon name="chevron_left" className="dt-menu-go" />
           </Link>

@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { FEEDBACK_TEXT_MAX, RATING_LABELS, feedbackInputSchema } from "@/lib/feedback-schema";
 import { formatDate } from "@/lib/format";
 import { fieldErrors } from "@/lib/member-schema";
+import { hasSentFeedback, markFeedbackSent } from "@/lib/saved-diet";
 import { Icon } from "./Icon";
 
 type Event = { id: string; title: string; speaker: string | null; date: string };
@@ -120,6 +121,12 @@ export function FeedbackForm({ event }: { event: Event }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  // Already sent feedback for this event from this device?
+  const [alreadySent, setAlreadySent] = useState(false);
+
+  useEffect(() => {
+    if (hasSentFeedback(event.id)) setAlreadySent(true);
+  }, [event.id]);
   const doneHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -153,7 +160,10 @@ export function FeedbackForm({ event }: { event: Event }) {
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
-      if (res.ok) setDone(true);
+      if (res.ok) {
+        markFeedbackSent(event.id);
+        setDone(true);
+      }
       else if (res.status === 400 && data.errors) setErrors(data.errors);
       else setErrors({ form: data.error ?? "משהו השתבש. נסו שוב בעוד רגע." });
     } catch {
@@ -161,6 +171,34 @@ export function FeedbackForm({ event }: { event: Event }) {
     } finally {
       setBusy(false);
     }
+  }
+
+  if (alreadySent && !done) {
+    return (
+      <section className="dt-card dt-card-brand flex flex-col items-center gap-3 text-center" aria-labelledby="fb-already">
+        <span className="grid size-14 place-items-center rounded-full bg-good-bg text-good text-3xl">
+          <Icon name="check_circle" fill />
+        </span>
+        <h2 id="fb-already" className="text-2xl text-ink">
+          כבר שלחת משוב ✓
+        </h2>
+        <p className="m-0 text-ink-soft">
+          על <strong>{event.title}</strong>. תודה! אם נזכרת במשהו נוסף, אפשר לשלוח עוד משוב.
+        </p>
+        <button
+          type="button"
+          className="dt-btn dt-btn-secondary dt-btn-block mt-2"
+          onClick={() => {
+            setForm(EMPTY);
+            setAlreadySent(false);
+          }}
+        >
+          <Icon name="add_comment" />
+          לשלוח משוב נוסף
+        </button>
+        <Link href="/">חזרה לתפריט</Link>
+      </section>
+    );
   }
 
   if (done) {
