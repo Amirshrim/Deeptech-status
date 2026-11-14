@@ -19,7 +19,7 @@ Requirements: Node 20.9+ and a PostgreSQL database (local, Docker, or a free Neo
 ```bash
 npm install
 cp .env.example .env          # then fill in the values (see below)
-npm run hash-password         # prints ADMIN_PASSWORD_HASH (the .env-escaped line)
+npm run hash-password         # prints ADMIN_PASSWORD_HASH
 npx prisma migrate dev        # creates the tables
 npm run db:seed               # optional: 8 fake members with Hebrew names
 npm run dev                   # http://localhost:3000  ·  admin: /admin
@@ -38,7 +38,7 @@ docker run -d --name dt-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=deeptech
 | `DATABASE_URL` | yes | Postgres connection string the app uses at runtime. Use the **pooled** URL on Vercel. |
 | `DATABASE_URL_UNPOOLED` | yes | **Direct** (non-pooled) URL that `prisma migrate` uses. Locally it can be the same as `DATABASE_URL`. |
 | `ADMIN_EMAILS` | yes | Comma-separated allowlist of admin emails, e.g. `amir@x.com,dana@y.com`. Removing an email revokes that admin's session right away. |
-| `ADMIN_PASSWORD_HASH` | yes | bcrypt hash of the shared admin password, from `npm run hash-password`. |
+| `ADMIN_PASSWORD_HASH` | yes | scrypt hash of the shared admin password, from `npm run hash-password`. |
 | `SESSION_SECRET` | yes | 32+ random characters used to sign the session cookie. Generate with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
 | `CLUB_CONTACT_EMAIL` | recommended | Shown in the privacy note as the address for deletion requests. |
 
@@ -48,12 +48,7 @@ docker run -d --name dt-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=deeptech
 npm run hash-password
 ```
 
-The command asks for the password twice (input is hidden) and prints two versions:
-
-- **Raw hash**, e.g. `$2b$12$...`: paste this into the **Vercel dashboard** exactly as shown.
-- **Escaped line**, e.g. `ADMIN_PASSWORD_HASH=\$2b\$12\$...`: paste this into your **local `.env`**. Next.js expands `$` in `.env` files, so every `$` has to be escaped there.
-
-The app accepts either form, so pasting the escaped version into Vercel works too.
+The command asks for the password twice (input is hidden) and prints a single line like `scrypt:32768:8:1:…:…`. It uses Node's built-in scrypt, and the hash contains no `$` signs, so you can paste it as-is into both the Vercel dashboard and a local `.env`.
 
 Every admin logs in with their own allowlisted email and the shared password.
 
@@ -70,7 +65,7 @@ Every admin logs in with their own allowlisted email and the shared password.
    ```
 2. **Import the repo in Vercel:** go to vercel.com/new and pick the repo. Leave the framework preset as Next.js and don't change the build command. Vercel automatically runs the `vercel-build` script, which is `prisma generate && prisma migrate deploy && next build`.
 3. **Add a database:** in the project, open **Storage**, choose **Create Database**, then **Neon (Postgres)** and connect it to the project. The integration sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for you. With any other Postgres provider, set both variables yourself.
-4. **Add the rest of the env vars** under **Settings → Environment Variables**: `ADMIN_EMAILS`, `ADMIN_PASSWORD_HASH` (raw), `SESSION_SECRET` and `CLUB_CONTACT_EMAIL`.
+4. **Add the rest of the env vars** under **Settings → Environment Variables**: `ADMIN_EMAILS`, `ADMIN_PASSWORD_HASH`, `SESSION_SECRET` and `CLUB_CONTACT_EMAIL`.
 5. **Deploy**, or redeploy if the first deploy ran before the env vars existed. Migrations run during the build.
 6. *Optional:* seed test data against the production database from your machine:
    ```bash
@@ -99,7 +94,7 @@ Allergies and celiac disease are health data, so the app is built to expose as l
   - form: 10 submissions per 10 minutes per IP.
 
   A hidden honeypot field also screens out bots.
-- Login failures always show the same generic message. bcrypt runs even for emails that aren't on the allowlist, so response timing doesn't reveal who is.
+- Login failures always show the same generic message. The password hash is checked even for emails that aren't on the allowlist, so response timing doesn't reveal who is.
 - There is no analytics or tracking. Text fonts are self-hosted by `next/font`. The only third-party request is the Material Symbols icon stylesheet from Google Fonts.
 - **CSV export:** cells starting with `= + - @` are escaped so spreadsheets don't run them as formulas. Phone numbers are wrapped as `="..."` so Excel keeps the leading `0` and `+`.
 - **Known trade-off (part of the spec):** a record is keyed only by email, with no verification. Anyone who knows a member's email can overwrite that member's preferences. If that matters for you, add an email magic-link confirmation.
@@ -108,7 +103,7 @@ Allergies and celiac disease are health data, so the app is built to expose as l
 
 ```
 prisma/                 schema, migration, seed (+ seed-data.ts)
-scripts/hash-password.mjs
+scripts/hash-password.ts
 src/middleware.ts       protects /admin/* and /api/admin/*
 src/app/page.tsx        public form page
 src/app/api/members     public upsert endpoint
