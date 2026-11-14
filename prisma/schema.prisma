@@ -37,3 +37,35 @@ model RateLimit {
 
   @@index([resetAt])
 }
+
+// A club meetup/lecture that members can give feedback on.
+// The admin marks one as active; the public feedback form attaches to it.
+model ClubEvent {
+  id        String     @id @default(cuid())
+  title     String
+  speaker   String?
+  date      DateTime
+  isActive  Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  feedback  Feedback[]
+
+  @@index([isActive])
+}
+
+// "שימור / שיפור" feedback for one event. Name is optional (empty = anonymous).
+model Feedback {
+  id             String    @id @default(cuid())
+  eventId        String
+  event          ClubEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  lectureRating  Int
+  lectureKeep    String?
+  lectureImprove String?
+  foodRating     Int?
+  foodKeep       String?
+  foodImprove    String?
+  notes          String?
+  name           String?
+  createdAt      DateTime  @default(now())
+
+  @@index([eventId])
+}

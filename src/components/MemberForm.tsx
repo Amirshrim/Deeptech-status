@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
 import { DIET_OPTIONS, type DietKey } from "@/lib/diet";
 import type { SavedSummary } from "@/lib/member-dto";
@@ -451,6 +452,10 @@ function SuccessView({
       </dl>
 
       <p className="dt-hint m-0 text-center">משהו השתנה? אפשר למלא שוב עם אותו מייל, והפרטים יתעדכנו.</p>
+      <Link href="/feedback" className="dt-btn dt-btn-primary dt-btn-block">
+        <Icon name="forum" />
+        רוצים לתת גם משוב על המפגש?
+      </Link>
       <button type="button" className="dt-btn dt-btn-secondary dt-btn-block" onClick={onEdit}>
         <Icon name="edit" />
         עריכת הפרטים

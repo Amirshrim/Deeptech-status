@@ -1,4 +1,16 @@
 /* eslint-disable @next/next/no-img-element -- static brand images, no optimisation needed */
+import Link from "next/link";
+import { Icon } from "./Icon";
+
+/** "Back to menu" link for entry screens. */
+export function BackLink() {
+  return (
+    <Link href="/" className="dt-back">
+      <Icon name="chevron_right" />
+      חזרה לתפריט
+    </Link>
+  );
+}
 
 /** Full Deep-Tech Reichman logo (atom + wordmark) over the galaxy glow, for entry screens. */
 export function BrandHero({ size = "lg" }: { size?: "lg" | "sm" }) {
