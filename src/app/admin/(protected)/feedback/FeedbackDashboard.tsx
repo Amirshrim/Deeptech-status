@@ -59,6 +59,7 @@ export function FeedbackDashboard({
   const selected = events.find((e) => e.id === selectedId) ?? null;
   const stats = computeFeedbackStats(items);
   const [creating, setCreating] = useState(events.length === 0);
+  const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState<EventDTO | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -113,7 +114,7 @@ export function FeedbackDashboard({
       </div>
 
       {creating && (
-        <NewEventForm
+        <EventForm
           onDone={() => {
             setCreating(false);
             setMessage("המפגש נוצר ונפתח למשוב");
@@ -157,11 +158,28 @@ export function FeedbackDashboard({
                 לפתוח את המפגש הזה למשוב
               </button>
             )}
+            <button type="button" className="dt-btn dt-btn-ghost dt-btn-sm" onClick={() => setEditing((v) => !v)}>
+              <Icon name="edit" />
+              עריכת פרטי המפגש
+            </button>
             <button type="button" className="dt-btn dt-btn-ghost dt-btn-sm text-bad" onClick={() => setDeleting(selected)}>
               <Icon name="delete" />
               מחיקת המפגש
             </button>
           </div>
+
+          {editing && (
+            <EventForm
+              key={selected.id}
+              initial={{ id: selected.id, title: selected.title, speaker: selected.speaker ?? "", date: isoDay(selected.date) }}
+              onDone={() => {
+                setEditing(false);
+                setMessage("פרטי המפגש עודכנו");
+                router.refresh();
+              }}
+              onCancel={() => setEditing(false)}
+            />
+          )}
 
           <section aria-label="סיכום" className="dt-tiles" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
             <Tile accent label="דירוג המרצה" value={stats.lectureAvg?.toFixed(1) ?? "–"} sub="מתוך 5" />
@@ -220,16 +238,25 @@ export function FeedbackDashboard({
   );
 }
 
-function NewEventForm({ onDone, onCancel }: { onDone: () => void; onCancel?: () => void }) {
-  const [title, setTitle] = useState("");
-  const [speaker, setSpeaker] = useState("");
-  const [date, setDate] = useState(() => isoDay(new Date()));
+function EventForm({
+  initial,
+  onDone,
+  onCancel,
+}: {
+  initial?: { id: string; title: string; speaker: string; date: string };
+  onDone: () => void;
+  onCancel?: () => void;
+}) {
+  const editing = Boolean(initial);
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [speaker, setSpeaker] = useState(initial?.speaker ?? "");
+  const [date, setDate] = useState(() => initial?.date ?? isoDay(new Date()));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const payload = { title, speaker, date, isActive: true };
+    const payload = editing ? { title, speaker, date } : { title, speaker, date, isActive: true };
     const parsed = eventInputSchema.safeParse(payload);
     if (!parsed.success) {
       setErrors(fieldErrors(parsed.error));
@@ -237,8 +264,8 @@ function NewEventForm({ onDone, onCancel }: { onDone: () => void; onCancel?: () 
     }
     setBusy(true);
     setErrors({});
-    const res = await fetch("/api/admin/events", {
-      method: "POST",
+    const res = await fetch(editing ? `/api/admin/events/${initial!.id}` : "/api/admin/events", {
+      method: editing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     }).catch(() => null);
@@ -261,9 +288,9 @@ function NewEventForm({ onDone, onCancel }: { onDone: () => void; onCancel?: () 
   return (
     <form className="dt-card flex flex-col gap-4" onSubmit={onSubmit} noValidate aria-labelledby="ev-new">
       <h2 id="ev-new" className="text-lg">
-        מפגש חדש
+        {editing ? "עריכת פרטי המפגש" : "מפגש חדש"}
       </h2>
-      <p className="m-0 text-sm text-ink-soft">המפגש החדש ייפתח למשוב מיד, במקום המפגש הקודם.</p>
+      {!editing && <p className="m-0 text-sm text-ink-soft">המפגש החדש ייפתח למשוב מיד, במקום המפגש הקודם.</p>}
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="dt-field sm:col-span-2">
           <label htmlFor="ev-title" className="dt-label">
@@ -313,7 +340,7 @@ function NewEventForm({ onDone, onCancel }: { onDone: () => void; onCancel?: () 
           </button>
         )}
         <button type="submit" className="dt-btn dt-btn-primary" disabled={busy}>
-          {busy ? "שומר…" : "יצירה ופתיחה למשוב"}
+          {busy ? "שומר…" : editing ? "שמירה" : "יצירה ופתיחה למשוב"}
         </button>
       </div>
     </form>

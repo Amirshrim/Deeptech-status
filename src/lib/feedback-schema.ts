@@ -46,4 +46,8 @@ export const eventInputSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export const eventPatchSchema = z.object({ isActive: z.literal(true) });
+/** PATCH: either open the event for feedback, or edit its details. */
+export const eventPatchSchema = z.union([
+  z.object({ isActive: z.literal(true) }).strict(),
+  eventInputSchema.omit({ isActive: true }),
+]);
