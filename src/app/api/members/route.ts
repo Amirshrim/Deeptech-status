@@ -8,14 +8,24 @@ import { getClientIp, readJson } from "@/lib/request";
 
 export const dynamic = "force-dynamic";
 
-const SUBMIT_LIMIT = 10; // submissions…
-const SUBMIT_WINDOW_MS = 10 * 60 * 1000; // …per 10 minutes per IP
+// Generous per-IP limit: at events many members share one campus/Wi-Fi IP.
+// A tighter per-email limit stops someone hammering a single record.
+const IP_LIMIT = 150; // submissions per IP…
+const IP_WINDOW_MS = 10 * 60 * 1000; // …per 10 minutes
+const EMAIL_LIMIT = 10; // updates of the same email…
+const EMAIL_WINDOW_MS = 10 * 60 * 1000; // …per 10 minutes
+
+const TOO_MANY = "יותר מדי שליחות. נסו שוב בעוד כמה דקות.";
+
+function isUniqueViolation(err: unknown): boolean {
+  return typeof err === "object" && err !== null && (err as { code?: string }).code === "P2002";
+}
 
 export async function POST(req: Request) {
-  const limit = await rateLimit(`submit:${getClientIp(req)}`, SUBMIT_LIMIT, SUBMIT_WINDOW_MS);
+  const limit = await rateLimit(`submit:${getClientIp(req)}`, IP_LIMIT, IP_WINDOW_MS);
   if (!limit.ok) {
     return NextResponse.json(
-      { error: "יותר מדי שליחות. נסו שוב בעוד כמה דקות." },
+      { error: TOO_MANY },
       { status: 429, headers: { "Retry-After": String(limit.retryAfterSec) } },
     );
   }
@@ -37,17 +47,37 @@ export async function POST(req: Request) {
   }
 
   const { consent: _consent, ...data } = parsed.data;
-  const now = new Date();
 
+  const emailLimit = await rateLimit(`submit-email:${data.email}`, EMAIL_LIMIT, EMAIL_WINDOW_MS);
+  if (!emailLimit.ok) {
+    return NextResponse.json(
+      { error: TOO_MANY },
+      { status: 429, headers: { "Retry-After": String(emailLimit.retryAfterSec) } },
+    );
+  }
+
+  const now = new Date();
   const existing = await prisma.member.findUnique({
     where: { email: data.email },
     select: { id: true },
   });
-  const member = await prisma.member.upsert({
-    where: { email: data.email },
-    create: { ...data, consentAt: now },
-    update: { ...data, consentAt: now },
-  });
+
+  const upsert = () =>
+    prisma.member.upsert({
+      where: { email: data.email },
+      create: { ...data, consentAt: now },
+      update: { ...data, consentAt: now },
+    });
+
+  let member: Awaited<ReturnType<typeof upsert>>;
+  try {
+    member = await upsert();
+  } catch (err) {
+    // Two simultaneous first submissions with the same email can both try to
+    // create; the loser gets a unique violation — retrying turns it into an update.
+    if (!isUniqueViolation(err)) throw err;
+    member = await upsert();
+  }
 
   return NextResponse.json({
     status: existing ? "updated" : "created",

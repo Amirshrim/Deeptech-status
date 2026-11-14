@@ -32,7 +32,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: GENERIC_ERROR }, { status: 401 });
   }
 
+  let token: string;
+  try {
+    token = await createSessionToken(email);
+  } catch (err) {
+    console.error("admin login: cannot create session —", err);
+    return NextResponse.json(
+      { error: "שגיאת הגדרות בשרת (SESSION_SECRET חסר). פנו למי שמתחזק את האתר." },
+      { status: 500 },
+    );
+  }
+
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(SESSION_COOKIE, await createSessionToken(email), sessionCookieOptions);
+  res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions);
   return res;
 }
