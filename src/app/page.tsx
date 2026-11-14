@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandHero, Footer } from "@/components/Brand";
+import { DietSavedBadge } from "@/components/DietSavedBadge";
 import { Icon } from "@/components/Icon";
 import { getActiveEvent } from "@/lib/events";
 
@@ -28,6 +29,7 @@ export default async function MenuPage() {
             <span className="flex flex-col gap-0.5">
               <span className="dt-menu-title">תזונה ואלרגיות</span>
               <span className="dt-menu-sub">פעם אחת, כדי שיהיה לכם מה לאכול בכל אירוע</span>
+              <DietSavedBadge />
             </span>
             <Icon name="chevron_left" className="dt-menu-go" />
           </Link>

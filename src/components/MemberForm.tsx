@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type FormEvent, type RefObject } from "rea
 import { DIET_OPTIONS, type DietKey } from "@/lib/diet";
 import type { SavedSummary } from "@/lib/member-dto";
 import { ALLERGY_MAX, NOTES_MAX, fieldErrors, memberInputSchema } from "@/lib/member-schema";
+import { readSavedDiet, writeSavedDiet, type SavedDiet } from "@/lib/saved-diet";
 import { Icon } from "./Icon";
 import { AllergyInfo, DietBadges } from "./MemberBits";
 
@@ -66,6 +67,13 @@ export function MemberForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+  // Filled before on this device? Then show "already saved" instead of the form.
+  const [already, setAlready] = useState<SavedDiet | null>(null);
+
+  useEffect(() => {
+    const saved = readSavedDiet();
+    if (saved) setAlready(saved);
+  }, []);
   const successHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -126,6 +134,7 @@ export function MemberForm() {
       if (res.ok) {
         const { consent: _c, ...saved } = parsed.data;
         setResult({ status: data.status === "updated" ? "updated" : "created", member: data.member ?? saved });
+        writeSavedDiet({ fullName: saved.fullName, email: saved.email });
       } else if (res.status === 400 && data.errors) {
         setErrors(data.errors);
         focusFirstError(data.errors);
@@ -137,6 +146,18 @@ export function MemberForm() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (already && !result) {
+    return (
+      <AlreadySaved
+        saved={already}
+        onUpdate={() => {
+          setForm((f) => ({ ...f, fullName: already.fullName, email: already.email }));
+          setAlready(null);
+        }}
+      />
+    );
   }
 
   if (result) {
@@ -391,6 +412,37 @@ export function MemberForm() {
         {submitting ? "שומר…" : "שליחה"}
       </button>
     </form>
+  );
+}
+
+function AlreadySaved({ saved, onUpdate }: { saved: SavedDiet; onUpdate: () => void }) {
+  const firstName = saved.fullName.split(/\s+/)[0];
+  const heading = useRef<HTMLHeadingElement>(null);
+  return (
+    <section className="dt-card dt-card-brand flex flex-col gap-5" aria-labelledby="already-title">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <span className="grid size-14 place-items-center rounded-full bg-good-bg text-good text-3xl">
+          <Icon name="check_circle" fill />
+        </span>
+        <h2 id="already-title" ref={heading} tabIndex={-1} className="text-2xl text-ink outline-none">
+          {firstName}, כבר מילאת ✓
+        </h2>
+        <p className="m-0 text-ink-soft">
+          פרטי התזונה שלך שמורים אצלנו, ואין צורך למלא שוב לפני כל מפגש.
+        </p>
+        <p className="m-0 text-sm text-ink-soft">
+          נשמר עם <bdi dir="ltr">{saved.email}</bdi>
+        </p>
+      </div>
+      <Link href="/feedback" className="dt-btn dt-btn-primary dt-btn-block">
+        <Icon name="forum" />
+        למשוב על המפגש
+      </Link>
+      <button type="button" className="dt-btn dt-btn-secondary dt-btn-block" onClick={onUpdate}>
+        <Icon name="edit" />
+        משהו השתנה? עדכון הפרטים
+      </button>
+    </section>
   );
 }
 
