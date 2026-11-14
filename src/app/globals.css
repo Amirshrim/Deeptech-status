@@ -279,6 +279,20 @@
   .dt-card a {
     color: var(--navy);
   }
+  /* Links styled as buttons must beat the generic ".dt-card a" / ".dt-entry a" link colors */
+  .dt-card a.dt-btn,
+  .dt-entry a.dt-btn {
+    text-decoration: none;
+  }
+  .dt-card a.dt-btn-primary,
+  .dt-entry a.dt-btn-primary {
+    color: var(--white);
+  }
+  .dt-card a.dt-btn-secondary,
+  .dt-entry a.dt-btn-secondary {
+    color: var(--ink);
+  }
+
   /* Brand gradient strip on top of entry-screen cards */
   .dt-card-brand {
     position: relative;
