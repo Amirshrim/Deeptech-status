@@ -3,13 +3,13 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
-import { isAllowedAdmin } from "./admin-config";
+import { isAllowedAdmin, stripInvisible } from "./admin-config";
 import { verifyPassword } from "./password";
 import { SESSION_COOKIE, verifySessionToken, type AdminSession } from "./session";
 
-function passwordHash(): string | null {
-  const raw = process.env.ADMIN_PASSWORD_HASH?.trim();
-  return raw ? raw.replace(/^['"]|['"]$/g, "") : null;
+export function passwordHash(): string | null {
+  const raw = stripInvisible(process.env.ADMIN_PASSWORD_HASH ?? "").trim();
+  return raw ? raw.replace(/^['"]|['"]$/g, "").trim() : null;
 }
 
 /** True only if the email is allowlisted AND the password matches. */
@@ -20,8 +20,13 @@ export async function verifyAdminCredentials(email: string, password: string): P
     return false;
   }
   // Always run the hash check (even for unknown emails) so timing doesn't reveal the allowlist.
-  const passwordOk = await verifyPassword(password, hash);
-  return passwordOk && isAllowedAdmin(email);
+  const passwordOk = await verifyPassword(stripInvisible(password).trim(), hash);
+  const emailOk = isAllowedAdmin(email);
+  if (!passwordOk || !emailOk) {
+    // Server-side only (Vercel → Logs); the client always gets the same generic error.
+    console.warn(`admin login failed: ${!emailOk ? "email not in ADMIN_EMAILS" : "wrong password"}`);
+  }
+  return passwordOk && emailOk;
 }
 
 export async function getAdminSession(): Promise<AdminSession | null> {
