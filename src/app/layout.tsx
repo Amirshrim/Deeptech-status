@@ -23,8 +23,8 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Deep-Tech Reichman — העדפות תזונה",
-  description: "טופס העדפות תזונה לחברי מועדון הדיפ-טק של אוניברסיטת רייכמן",
+  title: "Deep-Tech Reichman — תזונה ומשוב",
+  description: "העדפות תזונה ומשוב על מפגשים — מועדון הדיפ-טק של אוניברסיטת רייכמן",
 };
 
 export const viewport: Viewport = {
