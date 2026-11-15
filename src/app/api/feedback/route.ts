@@ -8,7 +8,7 @@ import { getClientIp, readJson } from "@/lib/request";
 
 export const dynamic = "force-dynamic";
 
-const IP_LIMIT = 150; // per 10 minutes — members share campus Wi-Fi IPs
+const IP_LIMIT = 600; // per 10 minutes — a whole lecture hall shares one campus Wi-Fi IP
 const IP_WINDOW_MS = 10 * 60 * 1000;
 
 export async function POST(req: Request) {
