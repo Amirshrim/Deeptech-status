@@ -4,17 +4,12 @@ import { DietSavedBadge } from "@/components/DietSavedBadge";
 import { FeedbackSentBadge } from "@/components/FeedbackSentBadge";
 import { Icon } from "@/components/Icon";
 import { getActiveEvent } from "@/lib/events";
-import { getPublicBoard } from "@/lib/lecture-board";
 
 // Shows the current active event; read at request time.
 export const dynamic = "force-dynamic";
 
 export default async function MenuPage() {
-  const [event, board] = await Promise.all([
-    getActiveEvent().catch(() => null),
-    getPublicBoard().catch(() => null),
-  ]);
-  const freeLectureDates = board ? board.filter((s) => s.status === "free").length : null;
+  const event = await getActiveEvent().catch(() => null);
 
   return (
     <main className="dt-entry dt-on-navy flex flex-col">
@@ -61,9 +56,6 @@ export default async function MenuPage() {
             <span className="flex flex-col gap-0.5">
               <span className="dt-menu-title">רוצים להרצות?</span>
               <span className="dt-menu-sub">בחרו יום שלישי פנוי ושריינו אותו</span>
-              {freeLectureDates !== null && (
-                <span className="dt-badge dt-badge-good mt-1.5 self-start">{freeLectureDates} תאריכים פנויים</span>
-              )}
             </span>
             <Icon name="chevron_left" className="dt-menu-go" />
           </Link>

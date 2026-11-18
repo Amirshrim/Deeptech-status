@@ -34,14 +34,9 @@ export function LectureBoard({ slots: initial }: { slots: PublicSlot[] }) {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const free = slots.filter((s) => s.status === "free").length;
-
   return (
     <div className="flex flex-col gap-3">
-      <p className="m-0 text-center text-sm text-white/85" aria-live="polite">
-        <span className="dt-num">{free}</span> תאריכים פנויים מתוך <span className="dt-num">{slots.length}</span> · הלוח
-        מתעדכן לכולם
-      </p>
+      <p className="m-0 text-center text-sm text-white/85">הלוח מתעדכן לכולם בזמן אמת</p>
       <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {slots.map((s) => (
           <SlotCard
