@@ -3,8 +3,8 @@ import { z } from "zod";
 
 /** First Tuesday on the board. */
 export const BOARD_START = "2026-11-24";
-/** How many upcoming Tuesdays to show. */
-export const BOARD_WEEKS = 16;
+/** Last Tuesday on the board (8 meetups: 24.11.2026 – 12.01.2027). */
+export const BOARD_END = "2027-01-12";
 /** One person (email) can hold at most this many upcoming dates. */
 export const MAX_CLAIMS_PER_EMAIL = 2;
 
@@ -19,13 +19,14 @@ const addDays = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-/** Upcoming Tuesdays (YYYY-MM-DD), from BOARD_START or today (whichever is later). A day stays listed through its own date. */
-export function upcomingTuesdays(now: Date = new Date(), weeks = BOARD_WEEKS): string[] {
+/** Remaining Tuesdays (YYYY-MM-DD) between BOARD_START and BOARD_END. A day stays listed through its own date. */
+export function upcomingTuesdays(now: Date = new Date()): string[] {
   const today = todayInIsrael(now);
-  let first = today > BOARD_START ? today : BOARD_START;
-  const dow = new Date(`${first}T12:00:00Z`).getUTCDay(); // 2 = Tuesday
-  first = addDays(first, (2 - dow + 7) % 7);
-  return Array.from({ length: weeks }, (_, i) => addDays(first, i * 7));
+  const out: string[] = [];
+  for (let d = BOARD_START; d <= BOARD_END; d = addDays(d, 7)) {
+    if (d >= today) out.push(d);
+  }
+  return out;
 }
 
 export const isBoardDate = (iso: string, now: Date = new Date()) => upcomingTuesdays(now).includes(iso);
