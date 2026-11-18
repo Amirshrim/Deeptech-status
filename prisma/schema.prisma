@@ -69,3 +69,17 @@ model Feedback {
 
   @@index([eventId])
 }
+
+// One row per claimed (or admin-blocked) Tuesday on the lecture sign-up board.
+// The date is the primary key, so two people can't claim the same day.
+model LectureSlot {
+  date        DateTime @id // the Tuesday, stored at 12:00 UTC
+  name        String?
+  topic       String?
+  email       String? // private — admins only
+  blocked     Boolean  @default(false) // admin: no meetup that day
+  cancelToken String? // lets the claimer cancel from the same device
+  createdAt   DateTime @default(now())
+
+  @@index([email])
+}

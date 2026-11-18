@@ -6,9 +6,11 @@ The Deep-Tech club at Reichman University (RUNI) uses this to collect members' d
 - **Menu** at `/` with two options. Each one also has its own direct link, for WhatsApp or a QR code:
   - **`/diet`**: dietary preferences and allergies, filled once. The form has name, email, optional phone, dietary chips, an allergy toggle with details and a life-threatening flag, notes, and consent. Each email has one record, so submitting again with the same email updates it.
   - **`/feedback`**: feedback after each meetup ("שימור / שיפור"). It asks for a lecturer rating (1–5, required) with keep/improve text, a food rating (optional) with keep/improve text, free notes, and an optional name. Leaving the name empty makes the feedback anonymous. The form attaches to the event the admin marked as active.
+  - **`/lectures`**: lecture sign-up board. It lists every Tuesday from 24.11.2026, 16 weeks ahead. Members claim a free date by entering their name, email and an optional topic. The name and topic are shown to everyone; the email is shown only to admins. Two people can't claim the same date. A person can hold up to 2 future dates and can cancel from the same device. The board refreshes every 30 seconds.
 - **Admin** at `/admin`:
   - **Members:** stat tiles, plus a member table you can search, filter and sort. On mobile the table turns into stacked cards. You can edit and delete members.
   - **Feedback** (`/admin/feedback`): create an event (title, speaker, date), which opens it for feedback. For each event you see average ratings, keep/improve comments grouped by lecture and food, free notes, and a CSV export.
+  - **Lecturers** (`/admin/lectures`): see who claimed each date, with their email. You can release a date, mark a date as "no meetup", and open feedback for that meetup in one click.
   - **Catering summary** (`/admin/summary`): copy-as-text for WhatsApp, and a print view.
   - **Members CSV export** (UTF-8 with a BOM, so Excel opens the Hebrew correctly).
 

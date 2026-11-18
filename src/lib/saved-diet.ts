@@ -49,3 +49,26 @@ export function markFeedbackSent(eventId: string): void {
     /* storage unavailable */
   }
 }
+
+// ── Lecture board: cancel tokens for dates claimed from this device ──
+const LECTURE_KEY = "dt_lecture_tokens_v1";
+
+export function readLectureTokens(): Record<string, string> {
+  try {
+    const v = JSON.parse(window.localStorage.getItem(LECTURE_KEY) ?? "{}");
+    return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveLectureToken(date: string, token: string | null): void {
+  try {
+    const all = readLectureTokens();
+    if (token) all[date] = token;
+    else delete all[date];
+    window.localStorage.setItem(LECTURE_KEY, JSON.stringify(all));
+  } catch {
+    /* storage unavailable */
+  }
+}

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Brand } from "./Brand";
 import { Icon } from "./Icon";
 
-type Section = "dashboard" | "feedback" | "summary";
+type Section = "dashboard" | "feedback" | "lectures" | "summary";
 
 export function AdminHeader({ email, current }: { email: string; current: Section }) {
   return (
@@ -25,6 +25,14 @@ export function AdminHeader({ email, current }: { email: string; current: Sectio
           >
             <Icon name="forum" />
             משוב
+          </Link>
+          <Link
+            href="/admin/lectures"
+            className="dt-nav-link"
+            aria-current={current === "lectures" ? "page" : undefined}
+          >
+            <Icon name="co_present" />
+            מרצים
           </Link>
           <Link
             href="/admin/summary"
